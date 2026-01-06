@@ -1,0 +1,27 @@
+---
+title: "krknc"
+description: "The Krkn Client (krknc) is the client used to communicate with the Krkn Service."
+---
+
+![Image](/images/image.png)
+
+## Configuration
+
+- **username**: Your username for authentication
+- **server**: Server address (e.g., localhost:8443)  
+- **tailscale**: Use Tailscale (true/false)  
+- **quic**: Use QUIC protocol (true/false)  
+- **insecure**: Skip TLS verification (true/false)  
+- **debug**: Enable debug mode (true/false)  
+- **webhook**-port: Webhook listener port (number)  
+- **hostname**: Tailscale hostname (string)
+
+Configs are used to set and persist settings across executions. The username is a required configuration along with the token however the token must be set in your environment variable. 
+
+![Image](/images/image.png)
+
+### Get
+
+- Required Privileges: **N/A**
+
+The `config get` command can be used to view your current settings.

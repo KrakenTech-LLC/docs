@@ -12,36 +12,43 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "icon": "book-open-cover",
-          "href": "https://mintlify.com/docs"
-        },
-        {
-          "anchor": "Blog",
+          "anchor": "KrakenTech",
           "icon": "newspaper",
-          "href": "https://mintlify.com/blog"
+          "href": "https://wiki.krkn.tech"
         }
       ]
     },
     "anchors": [
       {
         "anchor": "index",
-        "global": {
-          "products": [
-            {
-              "product": "Krkn",
-              "icon": "octopus",
-              "color": {
-                "light": "#EF8430",
-                "dark": "#EF8430"
-              },
-              "href": "https://wiki.krkn.tech/krkn"
-            }
-          ]
-        },
         "tabs": [
           {
-            "tab": "primary",
+            "tab": "Tools",
+            "global": {
+              "products": [
+                {
+                  "product": "Krkn",
+                  "href": "https://wiki.krkn.tech/tools/Krkn"
+                },
+                {
+                  "product": "Hook",
+                  "href": "https://wiki.krkn.tech/tools/Hook"
+                },
+                {
+                  "product": "Bounty",
+                  "href": "https://wiki.krkn.tech/tools/Bounty"
+                }
+              ]
+            },
+            "pages": [
+              "index/tools/Krkn/tentacle",
+              "index/tools/Krkn/krknc",
+              "index/tools/Krkn/krkns",
+              "index/tools/krkn"
+            ]
+          },
+          {
+            "tab": "Welcome",
             "pages": [
               "index/primary/index-mdx"
             ]
