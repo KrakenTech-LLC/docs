@@ -7,7 +7,7 @@
     "light": "#AF3B26",
     "dark": "#e97110"
   },
-  "favicon": "/Color_Logo - PNG.png",
+  "favicon": "/tentacle.svg",
   "navigation": {
     "global": {
       "anchors": [
@@ -100,7 +100,8 @@
   },
   "logo": {
     "light": "/KT_Logotype_Color.png",
-    "dark": "/KT_Simple_White - Copy.png"
+    "dark": "/KT_Simple_White - Copy.png",
+    "href": "https://krkn.tech"
   },
   "navbar": {
     "links": [
@@ -137,9 +138,11 @@
   "background": {
     "color": {
       "light": "#807c7c"
-    }
+    },
+    "decoration": "gradient"
   },
   "appearance": {
-    "default": "dark"
+    "default": "dark",
+    "strict": true
   }
 }
