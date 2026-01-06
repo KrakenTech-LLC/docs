@@ -44,13 +44,7 @@
               "index/tools/Krkn/tentacle",
               "index/tools/Krkn/krknc",
               "index/tools/Krkn/krkns",
-              "index/tools/krkn"
-            ]
-          },
-          {
-            "tab": "Welcome",
-            "pages": [
-              "index/primary/index-mdx"
+              "index/tools/Krkn/introduction"
             ]
           },
           {
@@ -62,30 +56,6 @@
                   "index",
                   "quickstart",
                   "development"
-                ]
-              },
-              {
-                "group": "Customization",
-                "pages": [
-                  "essentials/settings",
-                  "essentials/navigation"
-                ]
-              },
-              {
-                "group": "Writing content",
-                "pages": [
-                  "essentials/markdown",
-                  "essentials/code",
-                  "essentials/images",
-                  "essentials/reusable-snippets"
-                ]
-              },
-              {
-                "group": "AI tools",
-                "pages": [
-                  "ai-tools/cursor",
-                  "ai-tools/claude-code",
-                  "ai-tools/windsurf"
                 ]
               }
             ]
