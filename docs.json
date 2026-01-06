@@ -14,6 +14,10 @@
         {
           "anchor": "KrakenTech",
           "icon": "newspaper",
+          "color": {
+            "light": "#e88713",
+            "dark": "#e88713"
+          },
           "href": "https://wiki.krkn.tech"
         }
       ]
@@ -22,6 +26,12 @@
       {
         "anchor": "tools",
         "tabs": [
+          {
+            "tab": "Hashcrack.ing",
+            "pages": [
+              "tools/hashcrack-ing/introduction"
+            ]
+          },
           {
             "tab": "Bounty",
             "pages": [
