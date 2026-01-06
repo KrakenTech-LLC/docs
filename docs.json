@@ -3,85 +3,86 @@
   "theme": "mint",
   "name": "Mint Starter Kit",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#EF8430",
+    "light": "#AF3B26",
+    "dark": "#FFFFFF"
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "tabs": [
+    "global": {
+      "anchors": [
+        {
+          "anchor": "KrakenTech",
+          "icon": "newspaper",
+          "href": "https://wiki.krkn.tech"
+        }
+      ]
+    },
+    "anchors": [
       {
-        "tab": "Guides",
-        "groups": [
+        "anchor": "index",
+        "tabs": [
           {
-            "group": "Getting started",
+            "tab": "Tools",
+            "global": {
+              "products": [
+                {
+                  "product": "Krkn",
+                  "href": "https://wiki.krkn.tech/tools/Krkn"
+                },
+                {
+                  "product": "Hook",
+                  "href": "https://wiki.krkn.tech/tools/Hook"
+                },
+                {
+                  "product": "Bounty",
+                  "href": "https://wiki.krkn.tech/tools/Bounty"
+                }
+              ]
+            },
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "index/tools/Krkn/tentacle",
+              "index/tools/Krkn/krknc",
+              "index/tools/Krkn/krkns",
+              "index/tools/Krkn/introduction"
             ]
           },
           {
-            "group": "Customization",
-            "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+            "tab": "Guides",
+            "groups": [
+              {
+                "group": "Getting started",
+                "pages": [
+                  "index",
+                  "quickstart",
+                  "development"
+                ]
+              }
             ]
           },
           {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API reference",
-        "groups": [
-          {
-            "group": "API documentation",
-            "pages": [
-              "api-reference/introduction"
-            ]
-          },
-          {
-            "group": "Endpoint examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+            "tab": "API reference",
+            "groups": [
+              {
+                "group": "API documentation",
+                "pages": [
+                  "api-reference/introduction"
+                ]
+              },
+              {
+                "group": "Endpoint examples",
+                "pages": [
+                  "api-reference/endpoint/get",
+                  "api-reference/endpoint/create",
+                  "api-reference/endpoint/delete",
+                  "api-reference/endpoint/webhook"
+                ]
+              }
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
     "light": "/logo/light.svg",
