@@ -57,9 +57,17 @@ Krkn never needs to “phone home,” never requires internet access, and never 
 
 # Network
 
-The Krkn Server was built to work over VPNs and has a direct integration with Tailscale. The goal was secure communications to routable addresses over tunnels to perform crackign operations in a cli application.
+Krkn is designed from the ground up to operate across secure, private networks. The Krkn server and clients work seamlessly over VPNs and include native integration with Tailscale for simple, secure connectivity between distributed cracking nodes and operators.
 
-The intention was to present a workflow that did not require client data to leave a secure tunnel or have to be downloaded between multiple hosts and uploaded to a cracking server, leaving room for forgotton client data on employee machines.
+All communication happens over routable, private addresses inside encrypted tunnels. This allows teams to run distributed cracking operations from a CLI without ever exposing services to the public internet.
+
+Just as importantly, Krkn is built to eliminate unsafe data movement patterns.
+
+There is no need to download client data to laptops, copy files between hosts, or manually upload hash sets to cracking servers. Hashes, jobs, and results stay inside the secure network and move only through encrypted channels between trusted nodes.
+
+This reduces operational friction and removes an entire class of risk: forgotten client data on employee machines, stray files in home directories, or sensitive material living outside controlled infrastructure.
+
+Krkn keeps the workflow centralized, encrypted, and contained - by design.
 
 ![Blank Diagram](</Blank diagram.png>)
 
