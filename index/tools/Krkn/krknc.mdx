@@ -7,7 +7,7 @@ description: "The Krkn Client (krknc) is the client used to communicate with the
 
 The Krkn Client can be used to interface with the Krkn Server
 
-![Image](/images/image.png)
+![Krkn 5](/images/Krkn-_5.png)
 
 ## Configuration
 
@@ -238,7 +238,7 @@ T
 
 ## Jobs
 
-The `jobs`  subcommand encompasses the distributed KCat hash cracking system incorporated into the Krkn Service. 
+The `jobs`  subcommand encompasses the distributed KCat hash cracking system incorporated into the Krkn Service.
 
 ![Krkn 32](/images/Krkn-_32.png)
 
@@ -288,6 +288,74 @@ The `delete` subcommand can be used to delete an enqueued job.
   Required Privileges: **Job Owner, Admin**
 </Info>
 
-The `download` subcommand can be used to retrieve all cracked hashes from a completed job. 
+The `download` subcommand can be used to retrieve all cracked hashes from a completed job.
 
 ![Krkn 18](/images/Krkn-_18.png)
+
+## Webhooks
+
+Krkn Clients can create webhooks to manage jobs and updates. For the client to register for Webhooks when using tailscale, a new node will need to be added to the Tailscale network. When the `-t` flag is passed, a TSNet node will be created for listening with the name `<hostname>-krknc`. 
+
+```
+# With Tailscale (will register as hostname-krknc on your tailnet)
+./krknc listen -t
+
+# Without Tailscale (regular TCP)
+./krknc listen -p 9090
+```
+
+### Webhook Types
+
+Webhooks can be configured in one of three ways.
+
+### Toasts
+
+Webhooks can be configured to use OS Specific Toast messages, which appear on a grpahical desktop interface for user alerts. Toasts can also be queried using the toast subcommand if they are missed.
+
+### Append File
+
+Webhooks can be configred to append results to a file. This is ideal for when you submit a job and want the results to be added without having to check in on the job regularly.
+
+### Realtime
+
+Webhooks can also be configured in realtime mode. This will block your session and update you on the status of the job as it goes through the process.
+
+### Listen
+
+The listen subcommand can be used to register and listen in realtime for job updates.
+
+## Service
+
+The service subcommand can be used to create and start a webhook listener service.
+
+## Server
+
+The `server` subcommand can be used to query active workers for the conductor
+
+### Workers
+
+The `workers` subcommand can be used to query the Krkn Server for worker information
+
+List
+
+The `list` subcommand can be used to query tentacle workers and their status.
+
+![Krkn 7](/images/Krkn-_7.png)
+
+# Tailscale
+
+When connecting over Tailscale, you must supply the Tailscale `<hostname\>-krkn` of the destination server. You may supply just the hostname and the -krkn will be appended to the end.
+
+The client will also have to be registered separately on Tailscale as its own node. The client will appear on Tailscale as `<hostname>-krknc`using the hostname supplied in the config, otherwise the systems default hostname will be used.
+
+On first use, and periodically, the host will need to be authenticated. A URL will be provided that can be used to authorize the node for use on the Tailscale Network. It must be approved by an admin and given proper ACLs to access the Krkn Server and be access back for Webhooks if required.
+
+# Auto-Completion
+
+Autocompletion scripts can be added to your profile to allow tab completion and other features of the Krkn Client application.
+
+![Krkn 36](/images/Krkn-_36.png)
+
+### Bash Sample
+
+![Krkn 35](/images/Krkn-_35.png)
