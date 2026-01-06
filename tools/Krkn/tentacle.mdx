@@ -207,31 +207,30 @@ This opens an interactive shell in the container.
 # Troubleshooting
 
 <AccordionGroup>
-  <Accordion title='Error: The worker is not connecting'>
+  <Accordion title="Error: The worker is not connecting">
     This may be due to an firewall rules or the wrong port (65535). Try the following:
-      1. Verify `CONDUCTOR_ADDR` in `.env`
-      2. Check network: `ping your-server-hostname`
-      3. Ensure Kraken server is running
-      4. Check firewall allows port 65535
-  </Accordion>
 
+    1. Verify `CONDUCTOR_ADDR` in `.env`
+    2. Check network: `ping your-server-hostname`
+    3. Ensure Kraken server is running
+    4. Check firewall allows port 65535
+  </Accordion>
   <Accordion title="Error: GPU not Detected">
-  
     The Cuda Drivers may be out of date or an u pdate may have broken the installation.
+
     1. Run `nvidia-smi` on host
     2. Test Docker GPU: \``` docker run --rm --gpus all nvidia/cuda:13.0.0-base-ubuntu24.04` ``
     3. Restart Docker: \`sudo systemctl restart docker\`
     4. Rerun the prep_host.sh shell file
   </Accordion>
-
-  <Accordion title='Error: Out of Memory'>
+  <Accordion title="Error: Out of Memory">
     The wordlist+permutations may be too large:
-      1. Use a smaller wordlist
-      2. Use a smaller rule file
-      3. Increase system RAM
+
+    1. Use a smaller wordlist
+    2. Use a smaller rule file
+    3. Increase system RAM
   </Accordion>
 </AccordionGroup>
-
 
 # Configuration Reference
 
@@ -242,8 +241,8 @@ This opens an interactive shell in the container.
 | CAPACITY       | Concurrent jobs   | 1             | No       |
 | TEMP_DIR       | Temp directory    | /tmp/tentacle | No       |
 | HASHCAT_PATH   | Hashcat path      | /opt/hashcat  | No       |
-| GPU_MODEL      | GPU label         | -             | No       |
-| REGION         | Region label      | -             | No       |
+| GPU_MODEL      | GPU label         | --            | No       |
+| REGION         | Region label      | --            | No       |
 
 # Sample Work Execution
 
