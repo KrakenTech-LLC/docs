@@ -11,7 +11,7 @@ description: "This document explains the architectural and philosophical differe
 
 Both are excellent tools — they simply optimize for **very different deployment philosophies** and **very different operational goals**.
 
-# Part 1 — High-Level Explanation 
+# Part 1 — High-Level Explanation
 
 ## What is the core difference?
 
@@ -32,6 +32,33 @@ Both are excellent tools — they simply optimize for **very different deploymen
 - Ephemeral task execution without long-term intelligence memory
 
 ---
+
+## The User Interface
+
+### Krkn
+
+- **CLI-driven, API-driven system**
+- The CLI is:
+  - Just a client to the control plane
+  - Scriptable
+  - Automatable
+  - CI/CD friendly
+- Humans are **optional**
+- Designed to be:
+  - Embedded into pipelines
+  - Driven by schedulers
+  - Triggered by other systems
+  - Used headless
+
+### Hashtopolis
+
+- **UI-driven system**
+- The web interface is:
+  - The primary control plane
+  - The primary workflow engine
+  - The primary integration surface
+- Automation is secondary
+- Humans are in the loop by default
 
 ## How work is sent to workers
 
@@ -102,7 +129,7 @@ Both are excellent tools — they simply optimize for **very different deploymen
 - Has mature user and permission management
 - Tightly coupled to the PHP web application model
 
---- 
+---
 
 ## Real-Time Automation & Webhooks
 
@@ -166,12 +193,12 @@ Both are excellent tools — they simply optimize for **very different deploymen
 
 ## In short
 
-> **Krkn** is optimized for modern, distributed, containerized environments **and long-term cracking intelligence accumulation**.  
+> **Krkn** is optimized for modern, distributed, containerized environments **and long-term cracking intelligence accumulation**.\
 > **Hashtopolis** is optimized for classic server + agents + shared storage environments.
 
 ---
 
-# Part 2 — Technical Deep Dive 
+# Part 2 — Technical Deep Dive
 
 ## 1. Architecture & Technology Stack
 
@@ -179,7 +206,7 @@ Both are excellent tools — they simply optimize for **very different deploymen
 
 - Go-based microservices
 - gRPC + Protocol Buffers
-- QUIC/HTTP2 transport 
+- QUIC/HTTP2 transport
 - SQLite using `sqlc` for type-safe queries (user & job database)
 - **Custom encrypted key-value database for hash intelligence storage**
   - System-specific key
@@ -369,7 +396,7 @@ Both are excellent tools — they simply optimize for **very different deploymen
 
 # Final Positioning
 
-> Krkn is not just a distributed cracking scheduler.  
+> Krkn is not just a distributed cracking scheduler.\
 > It is a **cracking intelligence platform** that accumulates knowledge over time, integrates into automated security workflows, and is built for modern infrastructure.
 
 > Hashtopolis is an excellent **task execution and management system** for traditional environments.
