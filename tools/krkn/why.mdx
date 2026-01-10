@@ -5,11 +5,11 @@ description: "This document explains the architectural and philosophical differe
 
 # TL;DR Summary
 
-> **Krkn** is a modern, distributed, self-contained, streaming-first cracking orchestration system designed for cloud, containers, and segmented networks.
+> **Krkn** is a modern, distributed, self-contained, streaming-first cracking orchestration system designed for cloud, containers, segmented networks, and long-term cracking intelligence.
 
 > **Hashtopolis** is a traditional centralized cracking management platform designed around shared storage and classic server-agent models.
 
-Both are excellent tools — they simply optimize for **very different deployment philosophies**.
+Both are excellent tools — they simply optimize for **very different deployment philosophies** and **very different operational goals**.
 
 # Part 1 — High-Level Explanation 
 
@@ -21,18 +21,23 @@ Both are excellent tools — they simply optimize for **very different deploymen
 - Pull-based workers
 - High-performance networking
 - Minimal infrastructure assumptions
+- **Persistent encrypted hash intelligence and historical result reuse**
+- **Automation-first control plane with webhooks and APIs**
 
 **Hashtopolis** is a **traditional server-based cracking management system** designed around:
 
 - Central file storage
 - Agents that download tasks and files
 - A classic web application architecture
+- Ephemeral task execution without long-term intelligence memory
+
+---
 
 ## How work is sent to workers
 
 ### Krkn
 
-- Workers (**Tentacles**) connect to a controller (**Conductor**).
+- Workers (**Tentacles**) connect to a controller (**Krkns**).
 - When ready, they **ask for work**.
 - They receive **everything needed to execute the job in one package**:
   - Hashes
@@ -40,12 +45,89 @@ Both are excellent tools — they simply optimize for **very different deploymen
   - Rules
   - Masks
 - No shared filesystem is required.
+- **Before any job runs, hashes are checked against the encrypted intelligence store and previously cracked results are reused automatically.**
 
 ### Hashtopolis
 
 - The server tells agents what to do.
 - Agents then **download files separately** from a central file store.
 - The job references files by ID or path.
+- Previously cracked data is not treated as a first-class, reusable intelligence source.
+
+---
+
+## Persistent Hash Intelligence (Major Architectural Difference)
+
+### Krkn
+
+- Maintains a **system-local, encrypted key-value database** of:
+  - Hashes
+  - Cracked passwords
+  - Metadata
+- Encryption key:
+  - Is **system-specific**
+  - **Rotates daily**
+- This allows:
+  - Instant re-query of previously cracked hashes
+  - Deduplication across jobs
+  - Historical cracking reuse
+  - Long-term cracking intelligence accumulation
+- Jobs automatically benefit from **everything the system has ever cracked before**.
+
+### Hashtopolis
+
+- Oriented around:
+  - Task execution
+  - File-based results
+- No first-class, encrypted, system-wide cracking intelligence database
+- Historical results are not treated as a core optimization primitive.
+
+---
+
+## Access Control & Multi-Tenancy
+
+### Krkn
+
+- Built-in **user ACL system**:
+  - Controls access to jobs, results, datasets, and system functions
+  - Designed for multi-user, multi-role environments
+- Enables:
+  - Operator roles
+  - Read-only auditors
+  - Automation accounts
+  - Segmented access to cracking infrastructure
+
+### Hashtopolis
+
+- Has mature user and permission management
+- Tightly coupled to the PHP web application model
+
+--- 
+
+## Real-Time Automation & Webhooks
+
+### Krkn
+
+- Provides **webhook support** for:
+  - Job start
+  - Job completion
+  - Chunk completion
+  - New crack events
+  - Error conditions
+- Enables:
+  - Real-time dashboards
+  - SIEM/SOAR integration
+  - Slack/Discord alerts
+  - Automated follow-on actions (password resets, ticketing, reporting, etc)
+- Designed to act as **part of a larger automated security pipeline**, not just a cracking box.
+
+### Hashtopolis
+
+- Primarily UI-driven
+- Limited external automation hooks
+- Oriented toward human-driven workflows
+
+---
 
 ## Why this matters
 
@@ -59,6 +141,8 @@ Both are excellent tools — they simply optimize for **very different deploymen
 - Simpler deployment model for distributed workers
 - Better performance over unreliable networks
 - Workers are autonomous and self-scheduling
+- **Builds long-term cracking intelligence over time**
+- **Integrates cleanly into automated security workflows**
 
 ### Hashtopolis advantages
 
@@ -68,18 +152,24 @@ Both are excellent tools — they simply optimize for **very different deploymen
 - Easier for non-developers to customize agents
 - Strong multi-user and permission model
 
+---
+
 ## Networking model
 
-- **Krkn** is capable of using **QUIC** (modern UDP-based protocol) and other modern protocols:
+- **Krkn** is capable of using **QUIC** and **HTTP/2**:
   - Faster startup
   - Better multiplexing
   - Better performance on high-latency or restricted networks
 - **Hashtopolis** uses traditional **HTTP(S) over TCP**
 
+---
+
 ## In short
 
-> **Krkn** is optimized for modern, distributed, containerized, cloud-like environments.\
+> **Krkn** is optimized for modern, distributed, containerized environments **and long-term cracking intelligence accumulation**.  
 > **Hashtopolis** is optimized for classic server + agents + shared storage environments.
+
+---
 
 # Part 2 — Technical Deep Dive 
 
@@ -90,8 +180,10 @@ Both are excellent tools — they simply optimize for **very different deploymen
 - Go-based microservices
 - gRPC + Protocol Buffers
 - QUIC/HTTP2 transport 
-- SQLite using `sqlc` for type-safe queries (user database)
-- Custom Key-Value Database for hash storage and quick retrieval
+- SQLite using `sqlc` for type-safe queries (user & job database)
+- **Custom encrypted key-value database for hash intelligence storage**
+  - System-specific key
+  - Daily key rotation
 - Strongly typed, compile-time validated APIs
 
 ### Hashtopolis
@@ -205,8 +297,15 @@ Both are excellent tools — they simply optimize for **very different deploymen
 
 ### Krkn
 
-- SQLite
-- Custom `KrknDB` package
+- SQLite for:
+  - Users
+  - Jobs
+  - Scheduling
+  - ACLs
+- Custom encrypted key-value store for:
+  - Hashes
+  - Cracked passwords
+  - Historical result indexing
 - SQLC-generated type-safe queries
 
 ### Hashtopolis
@@ -229,13 +328,14 @@ Both are excellent tools — they simply optimize for **very different deploymen
 - Separate download phase
 - More I/O coordination required
 
-## 10. Observability
+## 10. Observability & Automation
 
 ### Krkn
 
 - Structured logging via Zap
 - Orchestra heartbeat and metrics system
-- Built-in distributed worker visibility
+- **Webhook-based event streaming**
+- **Automation-first integration design**
 
 ### Hashtopolis
 
@@ -250,6 +350,12 @@ Both are excellent tools — they simply optimize for **very different deploymen
 - Pull-based load balancing
 - Cloud/container friendly
 - Better for segmented and restricted networks
+- **Persistent encrypted cracking intelligence**
+- **Automatic re-use of historical results**
+- **Webhook-driven automation and integration**
+- **Fine-grained ACL system**
+
+---
 
 # Key Advantages of Hashtopolis
 
@@ -259,4 +365,13 @@ Both are excellent tools — they simply optimize for **very different deploymen
 - Python agents easier to customize
 - Strong multi-user and permission model
 
-# 
+---
+
+# Final Positioning
+
+> Krkn is not just a distributed cracking scheduler.  
+> It is a **cracking intelligence platform** that accumulates knowledge over time, integrates into automated security workflows, and is built for modern infrastructure.
+
+> Hashtopolis is an excellent **task execution and management system** for traditional environments.
+
+They solve **related but fundamentally different problems**.
