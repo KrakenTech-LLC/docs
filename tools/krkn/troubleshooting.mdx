@@ -3,11 +3,11 @@ title: "Troubleshooting"
 description: "Troubleshooting the Krknc -> Krkns connection"
 ---
 
-# Tailscale Troubleshooting Guide for Krkn
+# Tailscale for Krkn
 
 This document explains the most common (and non-obvious) failure modes when using Tailscale with Krkn, especially when using **tsnet** embedded nodes, posture checks, tags, grants, and groups.
 
-## 1. Mental Model: What tsnet Actually Is
+## Mental Model: What tsnet Actually Is
 
 Krkn utilizes the tsnet package for webhook and krkns services when Tailscale is enabled. The tsnet package exposes a `tsnet.Server`. A `tsnet.Server` does **NOT** add an interface to an existing Tailscale node, instead it creates an **entirely new Tailscale node identity**:
 
@@ -26,7 +26,7 @@ So:
 
 This is the root cause of most confusion.
 
-## 2. The #1 Silent Killer: Posture + tsnet
+## The #1 Silent Killer (Device Posture + tsnet)
 
 ### Why this breaks things
 
@@ -85,7 +85,7 @@ On human rules.
 
 Never on service mesh rules.
 
-## 3. Peer Suppression (The Control Plane Is Hiding Nodes From You)
+## Peer Suppression
 
 Tailscale does not show peers that **can never be reached** according to policy.
 
@@ -110,7 +110,7 @@ Root causes:
 - Group mismatch
 - ACL/grant shadowing
 
-## 4. Tags: Rules and Traps
+## Tags: Rules and Traps
 
 ### Important Facts
 
@@ -126,7 +126,7 @@ Root causes:
 - Node has multiple tags and only some rules match
 - tsnet node was created under `tagged-devices` user and rules are user-scoped
 
-## 5. Grants vs ACLs
+## Grants vs ACLs
 
 If you still have an `"acls"` section:
 
@@ -139,7 +139,7 @@ If you still have an `"acls"` section:
 - Use grants only
 - Remove ACLs entirely unless you fully understand both systems
 
-## 6. Groups
+## Groups
 
 Groups only affect:
 
@@ -159,7 +159,7 @@ And expecting service nodes to match.
 
 They never will.
 
-## 7. Debug Checklist
+## Debug Checklist
 
 On the broken node:
 
@@ -177,7 +177,7 @@ Check:
 - Does posture apply?
 - Does any rule match at all?
 
-## 8. Nuclear Debug Rule
+## Nuclear Debug Rule
 
 Temporarily add:
 
@@ -193,7 +193,7 @@ If the node appears immediately:
 
 > Your policy graph was unsatisfiable.
 
-## 9. Correct Architecture for Krkn
+## Correct Architecture for Krkn
 
 You should treat Krkn as:
 
@@ -213,7 +213,7 @@ Example:
 }
 ```
 
-## 10. Key Takeaways
+## Key Takeaways
 
 - tsnet nodes are full machines, not interfaces
 - Posture breaks tsnet unless explicitly excluded
@@ -222,7 +222,7 @@ Example:
 - Grants/ACL conflicts cause invisible failures
 - Always reason in terms of “is there ANY valid path?”
 
-## 11. If Something Is Weird
+## If Something Is Weird
 
 Always ask:
 
@@ -232,13 +232,13 @@ If yes, the node will disappear.
 
 ---
 
-# Krkn Client (krknc) Tailscale Troubleshooting Guide
+# krknc Tailscale Guide
 
 This guide covers **client-side** Tailscale issues for `krknc`, especially when the client embeds Tailscale via **tsnet** to expose a local webhook listener.
 
 If you enabled Tailscale support in the client and something appears “stuck”, “invisible”, or “not connecting”, this document explains why and how to fix it.
 
-## 1. Mental Model: krknc + tsnet
+## Mental Model: krknc + tsnet
 
 When `krknc` starts with Tailscale enabled:
 
@@ -259,7 +259,7 @@ So:
 
 They are two different nodes.
 
-## 2. First-Run Authentication (The #1 Confusion Point)
+## First-Run Authentication (The #1 Confusion Point)
 
 On first startup with Tailscale enabled, krknc **must authenticate** its embedded tsnet node.
 
@@ -301,7 +301,7 @@ What this does:
 
 > ⚠️ This is ONLY required for the **initial registration**. After that, the node identity is persisted and the env vars are no longer needed.
 
-## 3. Important: You Only Need to Auth ONCE
+## Important: You Only Need to Auth ONCE
 
 Once krknc has successfully authenticated:
 
@@ -322,7 +322,7 @@ Unless:
 - You force a re-login
 - You run in ephemeral mode (if supported)
 
-## 4. Where the Auth “Hang” Happens
+## Where the Auth “Hang” Happens
 
 Symptoms:
 
@@ -343,7 +343,7 @@ Fix:
 - Open it in your browser
 - Approve the node
 
-## 5. Verifying the Client Node Exists
+## Verifying the Client Node Exists
 
 After successful auth, check in the Tailscale admin console:
 
@@ -360,7 +360,7 @@ tailscale status
 
 (On machines that are allowed to see it by policy.)
 
-## 6. Tags and Visibility
+## Tags and Visibility
 
 Even if the client node is authenticated:
 
@@ -374,7 +374,7 @@ Remember:
 
 This is not a networking issue — it is a **policy graph issue**.
 
-## 7. Posture and Client Nodes
+## Posture and Client Nodes
 
 If your tailnet uses posture rules:
 
@@ -394,7 +394,7 @@ Fix:
 - Only apply posture to human devices
 - See the main Krkn Tailscale Troubleshooting Guide
 
-## 8. Common Failure Modes
+## Common Failure Modes
 
 ### A) “Client never connects”
 
@@ -427,7 +427,7 @@ Fix:
 - New identity is being created
 - This is expected
 
-## 9. Forcing a Re-Registration
+## Forcing a Re-Registration
 
 If you want to force krknc to register as a new node:
 
@@ -438,7 +438,7 @@ export TS_AUTHKEY=tskey-...
 
 Or delete the client’s tsnet state directory.
 
-## 10. Debug Checklist
+## Debug Checklist
 
 On the client machine:
 
@@ -460,7 +460,7 @@ If not:
 
 > The control plane has suppressed it due to policy.
 
-## 11. Key Takeaways
+## Key Takeaways
 
 - krknc uses its own embedded Tailscale node
 - It must authenticate once
