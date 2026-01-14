@@ -1,0 +1,233 @@
+---
+title: "Troubleshooting"
+description: "Troubleshooting the Krknc -> Krkns connection"
+---
+
+# Tailscale Troubleshooting Guide for Krkn
+
+This document explains the most common (and non-obvious) failure modes when using Tailscale with Krkn, especially when using **tsnet** embedded nodes, posture checks, tags, grants, and groups.
+
+## 1. Mental Model: What tsnet Actually Is
+
+Krkn utilizes the tsnet package for webhook and krkns services when Tailscale is enabled. The tsnet package exposes a `tsnet.Server`. A `tsnet.Server` does **NOT** add an interface to an existing Tailscale node, instead it creates an **entirely new Tailscale node identity**:
+
+- Separate machine entry in admin console
+- Separate node key
+- Separate IP
+- Separate ACL identity
+- Separate posture evaluation
+- Separate tags and ownership
+
+Even if it runs on the same physical machine.
+
+So:
+
+- `kraken-node` and `kraken-node-krkn` are **two different machines** as far as Tailscale is concerned.
+
+This is the root cause of most confusion.
+
+## 2. The #1 Silent Killer: Posture + tsnet
+
+### Why this breaks things
+
+Posture checks like:
+
+- `node:tsReleaseTrack == 'stable'`
+- `node:tsAutoUpdate`
+
+**FAIL on tsnet nodes**, because:
+
+- tsnet nodes do not auto-update
+- tsnet nodes do not have a release channel
+- tsnet nodes often lack many “managed” attributes
+
+If you have:
+
+```json
+"defaultSrcPosture": ["posture:human"]
+```
+
+Then **tsnet nodes are silently removed from the tailnet graph** for non-admin nodes.
+
+### Symptom
+
+- Admin can see the tsnet node
+- Other nodes cannot see it at all
+- Node exists in admin console
+- Tag is correct
+- Grants look correct
+- But it is **invisible**
+
+### Correct Pattern
+
+- Do NOT use defaultSrcPosture globally
+- Only apply posture on rules that involve human devices
+- Service nodes (tsnet, infra) must be posture-free
+
+Example:
+
+```json
+"postures": {
+  "posture:human": [
+    "node:tsReleaseTrack == 'stable'",
+    "node:tsAutoUpdate"
+  ]
+}
+```
+
+Then only use:
+
+```json
+"srcPosture": ["posture:human"]
+```
+
+On human rules.
+
+Never on service mesh rules.
+
+## 3. Peer Suppression (The Control Plane Is Hiding Nodes From You)
+
+Tailscale does not show peers that **can never be reached** according to policy.
+
+If the solver decides:
+
+> “Node A can never talk to Node B under any rule”
+
+Then Node B is **not sent at all** in `tailscale status`.
+
+This causes:
+
+- Node does not appear
+- No ping
+- No connection attempt
+- Looks like it “does not exist”
+
+Root causes:
+
+- Missing grants
+- Bad posture
+- Tag mismatch
+- Group mismatch
+- ACL/grant shadowing
+
+## 4. Tags: Rules and Traps
+
+### Important Facts
+
+- Tags are per-node, not per-host
+- Tags must exist in `tagOwners`
+- Tag must be approved or auto-approved
+- Tags do NOT override posture
+- Tags do NOT override user ownership rules
+
+### Common Failures
+
+- Node is tagged in UI but policy does not list the tag in `tagOwners`
+- Node has multiple tags and only some rules match
+- tsnet node was created under `tagged-devices` user and rules are user-scoped
+
+## 5. Grants vs ACLs
+
+If you still have an `"acls"` section:
+
+- It is evaluated
+- It can block things even if grants allow them
+- It can cause peer suppression
+
+**Strong recommendation:**
+
+- Use grants only
+- Remove ACLs entirely unless you fully understand both systems
+
+## 6. Groups
+
+Groups only affect:
+
+- User-based rules
+- They do not apply to tagged service nodes
+- tsnet nodes almost always belong to `tagged-devices`
+
+Common mistake:
+
+- Writing rules like:
+
+```json
+"src": ["group:admins"]
+```
+
+And expecting service nodes to match.
+
+They never will.
+
+## 7. Debug Checklist
+
+On the broken node:
+
+```bash
+tailscale status
+tailscale status --json | jq '.Self'
+tailscale status --json | jq '.Peer[].DNSName'
+```
+
+Check:
+
+- Does the node exist in admin?
+- Does it have the tag?
+- Does the rule path exist?
+- Does posture apply?
+- Does any rule match at all?
+
+## 8. Nuclear Debug Rule
+
+Temporarily add:
+
+```json
+{
+  "src": ["*"],
+  "dst": ["*"],
+  "ip": ["*"]
+}
+```
+
+If the node appears immediately:
+
+> Your policy graph was unsatisfiable.
+
+## 9. Correct Architecture for Krkn
+
+You should treat Krkn as:
+
+- A private service fabric
+- Tag-isolated
+- No posture
+- No human lateral access
+- Only explicit holes punched when needed
+
+Example:
+
+```json
+{
+  "src": ["tag:krkn"],
+  "dst": ["tag:krkn"],
+  "ip": ["*"]
+}
+```
+
+## 10. Key Takeaways
+
+- tsnet nodes are full machines, not interfaces
+- Posture breaks tsnet unless explicitly excluded
+- If a node is invisible, it is being suppressed by the solver
+- Tags do not override posture
+- Grants/ACL conflicts cause invisible failures
+- Always reason in terms of “is there ANY valid path?”
+
+## 11. If Something Is Weird
+
+Always ask:
+
+> “Could the solver be deciding this path is impossible?”
+
+If yes, the node will disappear.
+
+---
