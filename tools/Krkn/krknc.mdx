@@ -7,7 +7,34 @@ description: "The Krkn Client (krknc) is the client used to communicate with the
 
 The Krkn Client can be used to interface with the Krkn Server
 
-![Krkn 5](/images/Krkn-_5.png)
+### Global Flags
+
+| Command      | Description                  | Flags             |
+| ------------ | ---------------------------- | ----------------- |
+| debug        | Enable debug mode            | -d --debug        |
+| hostname     | Tailscale hostname           | -n --hostname     |
+| insecure     | Skip TLS Verification        | -k --insecure     |
+| quic         | Use QUIC protocol            | -q --quic         |
+| server       | Krkn Server Hostname/IP      | -s --server       |
+| tailscale    | Use Tailscale for connection | --t --tailscale   |
+| webhook port | Port to use for webhook int  | -w --webhook-port |
+
+### Krkn Flags
+
+| Command    | Description                                                 |
+| ---------- | ----------------------------------------------------------- |
+| completion | Generates the autocompletion script for the specified shell |
+| config     | Manage the cache configuration                              |
+| files      | Manage Rules, Wordlists and Mask FIles                      |
+| hashes     | Manage or query cracked hashes                              |
+| job        | Manage jobs                                                 |
+| listen     | Start webhook listener                                      |
+| logs       | View local or server (remote) logs                          |
+| server     | Manage the Krkn Server                                      |
+| service    | Manage the webhook listener service                         |
+| toast      | Manage toast notifications                                  |
+| user       | Manage users                                                |
+| webhook    | Manage webhooks                                             |
 
 ## Configuration
 
@@ -22,7 +49,14 @@ The Krkn Client can be used to interface with the Krkn Server
 
 Configs are used to set and persist settings across executions. The username is a required configuration along with the token however the token must be set in your environment variable.
 
-![Krkn 31](/images/Krkn-_31.png)
+### Config
+
+| Sub-Command | Description                 |
+| ----------- | --------------------------- |
+| clear       | Clear all configurations    |
+| get         | Get configuration value(s)  |
+| set         | Set configuration value     |
+| unset       | Unset a configuration value |
 
 ### Get
 
@@ -66,7 +100,10 @@ The `clear` command can be used to clear all entries in the configuration.
 
 Logs can be queried to facilitate troubleshooting and debugging both remotely on the Krkn Server and locally.
 
-![Krkn 40](/images/Krkn-_40.png)
+| Sub-Command | Description            |
+| ----------- | ---------------------- |
+| local       | View local client logs |
+| remote      | View Krkn Server logs  |
 
 ### Remote
 
@@ -74,15 +111,27 @@ Logs can be queried to facilitate troubleshooting and debugging both remotely on
   Required Privileges: **Admin**
 </Info>
 
-![Krkn 39](/images/Krkn-_39.png)
+| Flag             | Description                                                               | Type   |
+| ---------------- | ------------------------------------------------------------------------- | ------ |
+| -E --end         | End date for logs (defaults to 'now')                                     | string |
+| -L --last        | Number of logs to show (default: 50)                                      | int    |
+| -T --no-truncate | Do not truncate log details                                               | bool   |
+| -V --severity    | Comma-delimited log severity to show (debug, info, warning, error, fatal) | string |
+| -S --start       | Start date for logs (e.g., '8 minutes ago', 'Jan 01, 2026')               | string |
 
 ### Local
 
 <Info>
-  Required Privileges: **Admin**
+  Required Privileges: **N/A**
 </Info>
 
-![Krkn 38](/images/Krkn-_38.png)
+| Flag             | Description                                                               | Type   |
+| ---------------- | ------------------------------------------------------------------------- | ------ |
+| -E --end         | End date for logs (defaults to 'now')                                     | string |
+| -L --last        | Number of logs to show (default: 50)                                      | int    |
+| -T --no-truncate | Do not truncate log details                                               | bool   |
+| -V --severity    | Comma-delimited log severity to show (debug, info, warning, error, fatal) | string |
+| -S --start       | Start date for logs (e.g., '8 minutes ago', 'Jan 01, 2026')               | string |
 
 ## Users
 
@@ -100,6 +149,14 @@ Users fall into three different roles:
   Required Privileges: **Admin**
 </Info>
 
+| Sub-Command | Description                                            |
+| ----------- | ------------------------------------------------------ |
+| list        | List all users                                         |
+| create      | Create a new user                                      |
+| delete      | Delete a user                                          |
+| set-role    | Set a users role                                       |
+| reset-token | Reset the users token and send the ma new one in email |
+
 Users can be listed by using the `list` command
 
 ![User List](/user_list.png)
@@ -111,6 +168,11 @@ Users can be listed by using the `list` command
 <Info>
   Required Privileges: **Admin**
 </Info>
+
+| Args | Description   |
+| ---- | ------------- |
+| 1    | username      |
+| 2    | email address |
 
 A new user can be created by an **admin** user using the `user create` command. A token will be sent to their email address.
 
@@ -124,15 +186,23 @@ A new user can be created by an **admin** user using the `user create` command. 
   Required Privileges: **Admin**
 </Info>
 
+| Args | Description |
+| ---- | ----------- |
+| 1    | username    |
+
 The `delete` subcommand can be used to delete a user from the Krkn Server.
 
 ![User Delete](/user_delete.png)
 
 ## Files
 
-The files subcommand can be used to upload, download, delete, head, tail and perform checksums for Rules, Wordlists and Mask files.
+| Sub-Command | Description           |
+| ----------- | --------------------- |
+| masks       | Manage mask files     |
+| rules       | Manage rule files     |
+| wordlists   | manage wordlist files |
 
-![Krkn 57](/images/Krkn-_57.png)
+The files subcommand can be used to upload, download, delete, head, tail and perform checksums for Rules, Wordlists and Mask files.
 
 ### Upload
 
@@ -140,9 +210,11 @@ The files subcommand can be used to upload, download, delete, head, tail and per
   Required Privileges: **Admin**
 </Info>
 
-The `upload` subcommand can be used to upload a file from your host to the Krkn Server.
+| Args | Description                                 |
+| ---- | ------------------------------------------- |
+| 1    | the local file to upload to the Krkn Server |
 
-![Krkn 54](/images/Krkn-_54.png)
+The `upload` subcommand can be used to upload a file from your host to the Krkn Server.
 
 ![Krkn 44](/images/Krkn-_44.png)
 
@@ -152,9 +224,12 @@ The `upload` subcommand can be used to upload a file from your host to the Krkn 
   Required Privileges: **Admin**
 </Info>
 
-The `download` subcommand can be used to prompt the Krkn Server to download a file from a given url.
+| Args | Description                                                                              |
+| ---- | ---------------------------------------------------------------------------------------- |
+| 1    | The url of the downloadable file. For github, ensure you are using the github _raw_ file |
+| 2    | The name to save the file as on the Krkn Server                                          |
 
-![Krkn 55](/images/Krkn-_55.png)
+The `download` subcommand can be used to prompt the Krkn Server to download a file from a given url.
 
 ![Krkn 53](/images/Krkn-_53.png)
 
@@ -166,8 +241,6 @@ The `download` subcommand can be used to prompt the Krkn Server to download a fi
 
 The `list` subcommand can be used to list files of the specified type on the Krkn Server.
 
-![Krkn 52](/images/Krkn-_51.png)
-
 ![Krkn 52](/images/Krkn-_52.png)
 
 ### Head
@@ -176,9 +249,12 @@ The `list` subcommand can be used to list files of the specified type on the Krk
   Required Privileges: **Admin**
 </Info>
 
-The `head` subcommand can be used to read the first N lines in the specified file.
+| Args | Description                       |
+| ---- | --------------------------------- |
+| 1    | The name of the file to read from |
+| 2    | The number of lines to read       |
 
-![Krkn 50](/images/Krkn-_50.png)
+The `head` subcommand can be used to read the first N lines in the specified file.
 
 ![Krkn 49](/images/Krkn-_49.png)
 
@@ -188,9 +264,12 @@ The `head` subcommand can be used to read the first N lines in the specified fil
   Required Privileges: **Admin**
 </Info>
 
-The `tail` subcommand can be used to read the last N lines in the specified file.
+| Args | Description                       |
+| ---- | --------------------------------- |
+| 1    | The name of the file to read from |
+| 2    | The number of lines to read       |
 
-![Krkn 50](/images/Krkn-_48.png)
+The `tail` subcommand can be used to read the last N lines in the specified file.
 
 ![Krkn 49](/images/Krkn-_47.png)
 
@@ -199,6 +278,10 @@ The `tail` subcommand can be used to read the last N lines in the specified file
 <Info>
   Required Privileges: **Admin**
 </Info>
+
+| Args | Description                      |
+| ---- | -------------------------------- |
+| 1    | The name of the file to checksum |
 
 The `sum` subcommand can be used to determine if the Sha256 sum of the downloaded or uploaded file matches what is expected.
 
@@ -210,7 +293,9 @@ The `sum` subcommand can be used to determine if the Sha256 sum of the downloade
   Required Privileges: **Admin**
 </Info>
 
-![Krkn 50](/images/Krkn-_46.png)
+| Args | Description                    |
+| ---- | ------------------------------ |
+| 1    | The name of the file to delete |
 
 ![Krkn 50](/images/Krkn-_43.png)
 
@@ -220,13 +305,23 @@ The `delete` subcommand can be used to delete the specified file from the Krkn S
 
 The `hashes` subcommand can be used to query or upload hashes to the Krkn Server.
 
-![Krkn 58](/images/Krkn-_58.png)
+| Sub-Commands | Description                              |
+| ------------ | ---------------------------------------- |
+| query        | Query the provided hashes                |
+| recount      | Perform a recount of all hash statistics |
+| stats        | Show hash statistics                     |
+| upload       | Upload cracked hashes from file or stdin |
 
 ### Upload
 
 <Info>
   Required Privileges: **Admin**
 </Info>
+
+| Args | Description                                    |
+| ---- | ---------------------------------------------- |
+| 1    | Hashcat mode                                   |
+| 2    | The local file to upload containing the hashes |
 
 ![Krkn 72](/images/Krkn-_72.png)
 
@@ -236,21 +331,83 @@ The `hashes` subcommand can be used to query or upload hashes to the Krkn Server
   Required Privileges: **Admin, User, Reader**
 </Info>
 
-T
+| Flags | Description                              |
+| ----- | ---------------------------------------- |
+| -T    | The hashcat mode of the provided hashes  |
+| -H    | Provide a comma delimited list of hashes |
+| -F    | Provide a file of hashes                 |
+| -O    | Output file for results                  |
+| -D    | Dispaly results to stdout                |
+
+The `query` subcommand can be used to query the Krkn Server for previously cracked hashes
 
 ![Krkn 71](/images/Krkn-_71.png)
 
 ## Jobs
 
-The `jobs`  subcommand encompasses the distributed KCat hash cracking system incorporated into the Krkn Service.
+| Sub-Command | Description          |
+| ----------- | -------------------- |
+| create      | Create a new job     |
+| delete      | Delete a job         |
+| download    | Download job results |
+| get         | Get a jobs details   |
+| list        | List all jobs        |
 
-![Krkn 32](/images/Krkn-_32.png)
+The `jobs`  subcommand encompasses the distributed KCat hash cracking system incorporated into the Krkn Service.
 
 ### Create
 
 <Info>
   Required Privileges: **User, Admin**
 </Info>
+
+### Args
+
+| Args | Description                       |
+| ---- | --------------------------------- |
+| 1    | The local hashes file for the job |
+|      |                                   |
+
+### Flags
+
+| Flag             | Description                                                           |
+| ---------------- | --------------------------------------------------------------------- |
+| -T --hashtype    | The hashcat mode to use for the job                                   |
+| -W --wordlist    | The wordlist to use for the job                                       |
+| -M --masks       | Name of masks file on server (required for modes 3, 6, 7)             |
+| -R --rules       | Name of rules file on server                                          |
+| -A --attack-mode | The attack mode to use for the job                                    |
+| -D --description | Description of the job                                                |
+| --full-suite     | Run full attack suite (ignores attack-mode, runs multiple strategies) |
+| --increment      | Enable mask increment mode (modes 3, 6, 7 only)                       |
+| --increment-min  | Stop mask incrementing at this length                                 |
+| --increment-max  | Start mask incrementing at this length                                |
+| --append         | Mask to append to each candidate                                      |
+| --prepend        | Mask to prepend to each candidate                                     |
+| --ts             | Use Tailscale for listener                                            |
+| --wa             | Register an all webhook for this job                                  |
+| --wc             | Register a completion webhook for this job                            |
+| --wr             | Register a realtime webhook for this job                              |
+| --waddr          | Webhook address (required if registering a webhook) ex. krkn:8080     |
+
+### Attack Modes
+
+-   0 - Straight/Dictionary: Uses wordlist (-w required)
+-   1 - Combination: Combines words from wordlist (-w required)
+-   3 - Brute-force/Mask: Uses mask patterns (-m required)
+-   6 - Hybrid Wordlist+Mask: Appends mask to wordlist words (-w and -m required)
+-   7 - Hybrid Mask+Wordlist: Prepends mask to wordlist words (-w and -m required)
+
+### Examples
+
+- Dictionary attack with rules
+  -  `krknc job create hashes.txt -T 1000 -A 0 -W rockyou -R best64`
+- Mask attack with increment
+  - `krknc job create hashes.txt -T 1000 -A 3 -M "?a?a?a?a?a?a" --increment --increment-min 4 --increment-max 8`
+- Hybrid attack
+  - `krknc job create hashes.txt -T 1000 -A 6 -W rockyou -M "?d?d?d"`
+- Full suite attack (runs multiple attack strategies)
+  - `krknc job create hashes.txt -T 1000 --full-suite`
 
 The `create` subcommand can be used to create a new job and place it into the queue on the Krkn Server.
 
@@ -261,6 +418,10 @@ The `create` subcommand can be used to create a new job and place it into the qu
 <Info>
   Required Privileges: **Job Owner, Admin**
 </Info>
+
+| Args | Description                   |
+| ---- | ----------------------------- |
+| 1    | The id of the job to retrieve |
 
 The `get` subcommand can be used to get the status and configuration of a specific job by its `id` .
 
@@ -282,6 +443,10 @@ The `list` subcommand. can be used to list jobs and their status'.
   Required Privileges: **Job Owner, Admin**
 </Info>
 
+| Args | Description                 |
+| ---- | --------------------------- |
+| 1    | The id of the job to delete |
+
 The `delete` subcommand can be used to delete an enqueued job.
 
 ![Krkn 20](/images/Krkn-_20.png)
@@ -291,6 +456,11 @@ The `delete` subcommand can be used to delete an enqueued job.
 <Info>
   Required Privileges: **Job Owner, Admin**
 </Info>
+
+| Args | Description                   |
+| ---- | ----------------------------- |
+| 1    | The ID of the job to download |
+| 2    | The name of the output file   |
 
 The `download` subcommand can be used to retrieve all cracked hashes from a completed job.
 
