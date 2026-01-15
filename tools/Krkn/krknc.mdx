@@ -425,20 +425,21 @@ The `jobs`  subcommand encompasses the distributed KCat hash cracking system inc
 
     ### Flags
 
-    | Flag             | Description                                                           |
-    | ---------------- | --------------------------------------------------------------------- |
-    | -T --hashtype    | The hashcat mode to use for the job                                   |
-    | -W --wordlist    | The wordlist to use for the job                                       |
-    | -M --masks       | Name of masks file on server (required for modes 3, 6, 7)             |
-    | -R --rules       | Name of rules file on server                                          |
-    | -A --attack-mode | The attack mode to use for the job                                    |
-    | -D --description | Description of the job                                                |
-    | --full-suite     | Run full attack suite (ignores attack-mode, runs multiple strategies) |
-    | --increment      | Enable mask increment mode (modes 3, 6, 7 only)                       |
-    | --increment-min  | Stop mask incrementing at this length                                 |
-    | --increment-max  | Start mask incrementing at this length                                |
-    | --append         | Mask to append to each candidate                                      |
-    | --prepend        | Mask to prepend to each candidate                                     |
+    | Flag             | Description                                                                      |
+    | ---------------- | -------------------------------------------------------------------------------- |
+    | -T --hashtype    | The hashcat mode to use for the job                                              |
+    | -W --wordlist    | The wordlist to use for the job                                                  |
+    | -M --masks       | Name of masks file on server (required for modes 3, 6, 7)                        |
+    | -R --rules       | Name of rules file on server                                                     |
+    | -A --attack-mode | The attack mode to use for the job                                               |
+    | -D --description | Description of the job                                                           |
+    | --full-suite     | Run full attack suite (ignores attack-mode, runs multiple strategies)            |
+    | --increment      | Enable mask increment mode (modes 3, 6, 7 only)                                  |
+    | --increment-min  | Stop mask incrementing at this length                                            |
+    | --increment-max  | Start mask incrementing at this length                                           |
+    | --append         | Mask to append to each candidate                                                 |
+    | --prepend        | Mask to prepend to each candidate                                                |
+    | -L               | Listen after creation using the host, port and webhook type stored in the config |
 
     ### Attack Modes
 
@@ -512,7 +513,7 @@ The `jobs`  subcommand encompasses the distributed KCat hash cracking system inc
 
 ## Webhooks
 
-Krkn Clients can create webhooks to manage jobs and updates. For the client to register for Webhooks when using tailscale, a new node will need to be added to the Tailscale network. When the `-t` flag is passed, a TSNet node will be created for listening with the name `<hostname>-krknc`.
+Krkn Clients can create webhooks to manage jobs and updates. For the client to register for Webhooks when using tailscale, a new node will need to be added to the Tailscale network. 
 
 ![Krkn Webhook Rt](/krkn_webhook_rt.gif)
 
