@@ -36,6 +36,45 @@ The Krkn Client can be used to interface with the Krkn Server
 | user       | Manage users                                                |
 | webhook    | Manage webhooks                                             |
 
+## First Time Setup
+
+To utilize the Krkn Client (krknc) you will need to store the token received in your email in the environment variables. 
+
+<AccordionGroup>
+  <Accordion title="Windows" icon="windows">
+    In powershell
+
+    `set KRKN_API_TOKEN=<token>`
+  </Accordion>
+  <Accordion title="Linux/Darwin" icon="linux">
+    Dynamically determine the shell in use and append token entry
+
+    ```bash
+    TOKEN="REDACTED"
+    
+    case "$SHELL" in
+      */zsh)  PROFILE="$HOME/.zshrc" ;;
+      */bash) PROFILE="$HOME/.bashrc" ;;
+      */fish) PROFILE="$HOME/.config/fish/config.fish" ;;
+      *) echo "Unsupported shell: $SHELL"; exit 1 ;;
+    esac
+    
+    if echo "$PROFILE" | grep -q fish; then
+      LINE="set -x KRKN_API_TOKEN \"$TOKEN\""
+    else
+      LINE="export KRKN_API_TOKEN=\"$TOKEN\""
+    fi
+    
+    mkdir -p "$(dirname "$PROFILE")"
+    
+    grep -q 'KRKN_API_TOKEN' "$PROFILE" 2>/dev/null || echo "$LINE" >> "$PROFILE"
+    
+    echo "Added KRKN_API_TOKEN to $PROFILE"
+    echo "Restart your shell or run: source $PROFILE"
+    ```
+  </Accordion>
+</AccordionGroup>
+
 ## Configuration
 
 - **username**: Your username for authentication
@@ -513,7 +552,7 @@ The `jobs`  subcommand encompasses the distributed KCat hash cracking system inc
 
 ## Webhooks
 
-Krkn Clients can create webhooks to manage jobs and updates. For the client to register for Webhooks when using tailscale, a new node will need to be added to the Tailscale network. 
+Krkn Clients can create webhooks to manage jobs and updates. For the client to register for Webhooks when using tailscale, a new node will need to be added to the Tailscale network.
 
 ![Krkn Webhook Rt](/krkn_webhook_rt.gif)
 
