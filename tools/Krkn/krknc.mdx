@@ -642,11 +642,9 @@ The `server` subcommand can be used to query active workers for the conductor
 
 # Tailscale
 
-When connecting over Tailscale, you must supply the Tailscale `<hostname\>-krkn` of the destination server. You may supply just the hostname and the -krkn will be appended to the end.
+When connecting over Tailscale, you must supply the Tailscale `<hostname>-krkn` of the destination server. You may supply just the hostname and the -krkn will be appended to the end.
 
-The client will also have to be registered separately on Tailscale as its own node. The client will appear on Tailscale as `<hostname>-krknc`using the hostname supplied in the config, otherwise the systems default hostname will be used.
-
-On first use, and periodically, the host will need to be authenticated. A URL will be provided that can be used to authorize the node for use on the Tailscale Network. It must be approved by an admin and given proper ACLs to access the Krkn Server and be access back for Webhooks if required.
+The client will also have to be registered separately on Tailscale as its own node. The client will use the existing Tailscale connection and will host the hostname value supplied in the config otherwise the systems default hostname will be used.
 
 # Auto-Completion
 
