@@ -230,9 +230,9 @@ If yes, the node will disappear.
 
 ---
 
-# krknc Tailscale Guide
+# The Krkn Client Tailscale Guide
 
-This guide covers **client-side** Tailscale issues for `krknc`, especially when the client embeds Tailscale via **tsnet** to expose a local webhook listener.
+This guide covers **client-side** Tailscale issues for `krknc`, especially exposing a local webhook listener.
 
 If you enabled Tailscale support in the client and something appears “stuck”, “invisible”, or “not connecting”, this document explains why and how to fix it.
 
@@ -240,9 +240,63 @@ If you enabled Tailscale support in the client and something appears “stuck”
 
 <AccordionGroup>
   <Accordion title="Mental Model">
-    When `krknc` starts with Tailscale enabled:
+    - krknc is just using the machine’s Tailscale
+    - If the machine can’t reach something, krknc can’t either
+    - There is no separate node, no separate identity, no separate auth
+  </Accordion>
+  <Accordion title="Krknc cannot reach krkns">
+    - The krkns tsnet node:
+      - Is not tagged
+      - Is posture-blocked
+      - Is policy-suppressed
+      - Or has no policy path from the client machine
+  </Accordion>
+  <Accordion title="Krkns cannot reach krknc">
+    - The client machine:
+      - Is missing the required tag
+      - Is blocked by posture
+      - Is blocked by policy
+  </Accordion>
+  <Accordion title="Krknc appears connected but nothing works">
+    - The machine itself does not have a valid policy path
+    - Test from the machine directly
 
-    - It creates a **tsnet** node (an embedded Tailscale node)
+    ```bash
+    tailscale ping <krkns-node>
+    ```
+
+    If that fails, krknc cannot work either.
+  </Accordion>
+  <Accordion title="Debug Checklist">
+    On the client machine:
+
+    - `tailscale status`
+    - `tailscale ping <target>`
+    - Check:
+      - Does the machine have the correct tag?
+      - Does policy allow it to talk to krkns?
+      - Is posture blocking it?
+  </Accordion>
+</AccordionGroup>
+
+## Key Takeaways
+
+- krknc uses its own embedded Tailscale node
+- It must authenticate once
+- Auth can be interactive or via TS_AUTHKEY
+- TS_FORCE_LOGIN=1 forces fresh registration
+- After first auth, env vars are no longer needed
+- If a node is invisible, it is being hidden by policy, not broken networking
+
+---
+
+# The Krkn Server Tailscale Guide
+
+<AccordionGroup>
+  <Accordion title="Mental Model">
+    When `krkns `starts with Tailscale enabled:
+
+    - It creates a `tsnet` node.
     - This is a **separate machine identity** in your tailnet
     - It has:
       - Its own IP
@@ -255,18 +309,18 @@ If you enabled Tailscale support in the client and something appears “stuck”
 
     So:
 
-    - Your workstation’s Tailscale login ≠ krknc’s Tailscale login
+    - Your workstation’s Tailscale login ≠ krkns’s Tailscale login
 
     They are two different nodes.
   </Accordion>
   <Accordion title="First-Run Authentication">
-    On first startup with Tailscale enabled, krknc **must authenticate** its embedded tsnet node.
+    On first startup with Tailscale enabled, krkns **must authenticate** its embedded tsnet node.
 
     There are two ways to do this:
 
     ### Option A — Interactive Login (Default)
 
-    - krknc will start
+    - krkns will start
     - It will block waiting for authentication
     - You must visit the printed login URL (only visible in debug logs)
     - After successful login, the node is registered
@@ -302,7 +356,7 @@ If you enabled Tailscale support in the client and something appears “stuck”
 
     ## Important: You Only Need to Auth ONCE
 
-    Once krknc has successfully authenticated:
+    Once krkns has successfully authenticated:
 
     - The node identity is stored on disk
     - Future runs will:
@@ -325,7 +379,7 @@ If you enabled Tailscale support in the client and something appears “stuck”
 
     Symptoms:
 
-    - krknc starts
+    - krkns starts
     - Nothing seems to happen
     - No errors
     - No progress
@@ -337,7 +391,7 @@ If you enabled Tailscale support in the client and something appears “stuck”
 
     Fix:
 
-    - Start krknc with debug logging enabled
+    - Start krkns with debug logging enabled
     - Look for a line containing a login URL
     - Open it in your browser
     - Approve the node
@@ -459,11 +513,9 @@ If you enabled Tailscale support in the client and something appears “stuck”
 
 ## Key Takeaways
 
-- krknc uses its own embedded Tailscale node
+- krkns uses its own embedded Tailscale node
 - It must authenticate once
 - Auth can be interactive or via TS_AUTHKEY
 - TS_FORCE_LOGIN=1 forces fresh registration
 - After first auth, env vars are no longer needed
 - If a node is invisible, it is being hidden by policy, not broken networking
-
----
