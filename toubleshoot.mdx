@@ -1,0 +1,471 @@
+---
+title: "Troubleshoot"
+description: "Troubleshooting the Krknc -> Krkns connection"
+---
+
+# Tailscale for Krkn
+
+This document explains the most common (and non-obvious) failure modes when using Tailscale with Krkn, especially when using **tsnet** embedded nodes, posture checks, tags, grants, and groups.
+
+## Mental Model: What tsnet Actually Is
+
+Krkn utilizes the tsnet package for webhook and krkns services when Tailscale is enabled. The tsnet package exposes a `tsnet.Server`. A `tsnet.Server` does **NOT** add an interface to an existing Tailscale node, instead it creates an **entirely new Tailscale node identity**:
+
+- Separate machine entry in admin console
+- Separate node key
+- Separate IP
+- Separate ACL identity
+- Separate posture evaluation
+- Separate tags and ownership
+
+Even if it runs on the same physical machine.
+
+So:
+
+- `kraken-node` and `kraken-node-krkn` are **two different machines** as far as Tailscale is concerned.
+
+This is the root cause of most confusion.
+
+### Common Problems
+
+<AccordionGroup>
+  <Accordion title="The #1 Silent Killer (Device Posture + tsnet)">
+    **Why this breaks things**
+
+    **Posture checks like:**
+
+    - `node:tsReleaseTrack == 'stable'`
+    - `node:tsAutoUpdate`
+
+    **FAIL on tsnet nodes**, because:
+
+    - tsnet nodes do not auto-update
+    - tsnet nodes do not have a release channel
+    - tsnet nodes often lack many “managed” attributes
+
+    If you have:
+
+    ```json
+    "defaultSrcPosture": ["posture:human"]
+    ```
+
+    Then **tsnet nodes are silently removed from the tailnet graph** for non-admin nodes.
+
+    **Symptom**
+
+    - Admin can see the tsnet node
+    - Other nodes cannot see it at all
+    - Node exists in admin console
+    - Tag is correct
+    - Grants look correct
+    - But it is **invisible**
+
+    **Correct Pattern**
+
+    - Do NOT use defaultSrcPosture globally
+    - Only apply posture on rules that involve human devices
+    - Service nodes (tsnet, infra) must be posture-free
+
+    Example:
+
+    ```json
+    "postures": {
+      "posture:human": [
+        "node:tsReleaseTrack == 'stable'",
+        "node:tsAutoUpdate"
+      ]
+    }
+    ```
+
+    Then only use:
+
+    ```json
+    "srcPosture": ["posture:human"]
+    ```
+
+    On human rules.
+
+    Never on service mesh rules.
+  </Accordion>
+  <Accordion title="Peer Suppression">
+    Tailscale does not show peers that **can never be reached** according to policy.
+
+    If the solver decides:
+
+    > “Node A can never talk to Node B under any rule”
+
+    Then Node B is **not sent at all** in `tailscale status`.
+
+    **This causes:**
+
+    - Node does not appear
+    - No ping
+    - No connection attempt
+    - Looks like it “does not exist”
+
+    **Root causes:**
+
+    - Missing grants
+    - Bad posture
+    - Tag mismatch
+    - Group mismatch
+    - ACL/grant shadowing
+  </Accordion>
+  <Accordion title="Tags: Rules and Traps">
+    **Important Facts**
+
+    - Tags are per-node, not per-host
+    - Tags must exist in `tagOwners`
+    - Tag must be approved or auto-approved
+    - Tags do NOT override posture
+    - Tags do NOT override user ownership rules
+
+    **Common Failures**
+
+    - Node is tagged in UI but policy does not list the tag in `tagOwners`
+    - Node has multiple tags and only some rules match
+    - tsnet node was created under `tagged-devices` user and rules are user-scoped
+  </Accordion>
+  <Accordion title="Grants vs ACLs">
+    If you still have an `"acls"` section:
+
+    - It is evaluated
+    - It can block things even if grants allow them
+    - It can cause peer suppression
+
+    **Strong recommendation:**
+
+    - Use grants only
+    - Remove ACLs entirely unless you fully understand both systems
+  </Accordion>
+  <Accordion title="Groups">
+    Groups only affect:
+
+    - User-based rules
+    - They do not apply to tagged service nodes
+    - tsnet nodes almost always belong to `tagged-devices`
+
+    Common mistake:
+
+    - Writing rules like:
+
+    ```json
+    "src": ["group:admins"]
+    ```
+
+    And expecting service nodes to match.
+
+    They never will.
+  </Accordion>
+  <Accordion title="Debug Checklist">
+    On the broken node:
+
+    ```bash
+    tailscale status
+    tailscale status --json | jq '.Self'
+    tailscale status --json | jq '.Peer[].DNSName'
+    ```
+
+    **Check:**
+
+    - Does the node exist in admin?
+    - Does it have the tag?
+    - Does the rule path exist?
+    - Does posture apply?
+    - Does any rule match at all?
+  </Accordion>
+  <Accordion title="Nuclear Debug Rule">
+    Temporarily add:
+
+    ```json
+    {
+      "src": ["*"],
+      "dst": ["*"],
+      "ip": ["*"]
+    }
+    ```
+
+    If the node appears immediately:
+
+    > Your policy graph was unsatisfiable.
+  </Accordion>
+</AccordionGroup>
+
+## Correct Architecture for Krkn
+
+You should treat Krkn as:
+
+- A private service fabric
+- Tag-isolated
+- No posture
+- No human lateral access
+- Only explicit holes punched when needed
+
+Example:
+
+```json
+{
+  "src": ["tag:krkn"],
+  "dst": ["tag:krkn"],
+  "ip": ["*"]
+}
+```
+
+## Key Takeaways
+
+- tsnet nodes are full machines, not interfaces
+- Posture breaks tsnet unless explicitly excluded
+- If a node is invisible, it is being suppressed by the solver
+- Tags do not override posture
+- Grants/ACL conflicts cause invisible failures
+- Always reason in terms of “is there ANY valid path?”
+
+## If Something Is Weird
+
+Always ask:
+
+> “Could the solver be deciding this path is impossible?”
+
+If yes, the node will disappear.
+
+---
+
+# krknc Tailscale Guide
+
+This guide covers **client-side** Tailscale issues for `krknc`, especially when the client embeds Tailscale via **tsnet** to expose a local webhook listener.
+
+If you enabled Tailscale support in the client and something appears “stuck”, “invisible”, or “not connecting”, this document explains why and how to fix it.
+
+### Common Problems
+
+<AccordionGroup>
+  <Accordion title="Mental Model">
+    When `krknc` starts with Tailscale enabled:
+
+    - It creates a **tsnet** node (an embedded Tailscale node)
+    - This is a **separate machine identity** in your tailnet
+    - It has:
+      - Its own IP
+      - Its own hostname
+      - Its own tags (if any)
+      - Its own posture evaluation
+      - Its own auth state
+
+    It is **NOT** using the system tailscaled, even if one is running.
+
+    So:
+
+    - Your workstation’s Tailscale login ≠ krknc’s Tailscale login
+
+    They are two different nodes.
+  </Accordion>
+  <Accordion title="First-Run Authentication">
+    On first startup with Tailscale enabled, krknc **must authenticate** its embedded tsnet node.
+
+    There are two ways to do this:
+
+    ### Option A — Interactive Login (Default)
+
+    - krknc will start
+    - It will block waiting for authentication
+    - You must visit the printed login URL (only visible in debug logs)
+    - After successful login, the node is registered
+    - From then on:
+      - The auth state is persisted
+      - You do NOT need to login again on future starts
+
+    > ⚠️ If debug logging is NOT enabled, you may not see the login URL and it will look like the client is “hung”.
+
+    ### Option B — Auth Key (Non-interactive / Headless)
+
+    You can pre-auth the client using an auth key:
+
+    ```bash
+    export TS_AUTHKEY=tskey-xxxxxxxxxxxxxxxx
+    export TS_FORCE_LOGIN=1
+    ```
+
+    Then start krknc.
+
+    What this does:
+
+    - `TS_AUTHKEY` provides a pre-auth key
+    - `TS_FORCE_LOGIN=1` forces tsnet to use it even if cached state exists
+    - The node will:
+      - Register automatically
+      - Appear in the admin console
+      - Be ready without any browser login
+
+    > ✅ This is ideal for headless machines, CI, or scripted deployments.
+
+    > ⚠️ This is ONLY required for the **initial registration**. After that, the node identity is persisted and the env vars are no longer needed.
+
+    ## Important: You Only Need to Auth ONCE
+
+    Once krknc has successfully authenticated:
+
+    - The node identity is stored on disk
+    - Future runs will:
+      - Reuse the same node
+      - Reuse the same IP
+      - Reuse the same registration
+    - You do NOT need:
+      - TS_AUTHKEY
+      - TS_FORCE_LOGIN
+      - Or interactive login again
+
+    Unless:
+
+    - You delete the state directory
+    - You run with a different hostname
+    - You force a re-login
+    - You run in ephemeral mode (if supported)
+
+    ## Where the Auth “Hang” Happens
+
+    Symptoms:
+
+    - krknc starts
+    - Nothing seems to happen
+    - No errors
+    - No progress
+    - No network connectivity
+
+    Cause:
+
+    > tsnet is waiting for authentication, but the login URL is only shown in debug logs.
+
+    Fix:
+
+    - Start krknc with debug logging enabled
+    - Look for a line containing a login URL
+    - Open it in your browser
+    - Approve the node
+  </Accordion>
+  <Accordion title="Verifying the Client Node Exists">
+    After successful auth, check in the Tailscale admin console:
+
+    - Machines list
+    - You should see something like:
+      - `krknc-<hostname>`
+      - Or similar
+
+    Or locally:
+
+    ```bash
+    tailscale status
+    ```
+
+    (On machines that are allowed to see it by policy.)
+
+    ## Tags and Visibility
+
+    Even if the client node is authenticated:
+
+    - It may be **invisible** to other nodes if:
+      - It does not have the correct tag (e.g., `tag:krkn`)
+      - Or policy does not allow any path to it
+
+    Remember:
+
+    > If Tailscale policy says “this node can never talk to that node”, the peer is **suppressed** and does not appear at all.
+
+    This is not a networking issue — it is a **policy graph issue**.
+
+    ## Posture and Client Nodes
+
+    If your tailnet uses posture rules:
+
+    - tsnet nodes often **FAIL posture**
+    - Because they:
+      - Do not auto-update
+      - Do not have a release channel
+      - Do not look like “managed” clients
+
+    If posture is applied globally or to krkn rules:
+
+    > The client node may be silently excluded from the network graph.
+
+    Fix:
+
+    - Do not apply posture to service nodes
+    - Only apply posture to human devices
+    - See the main Krkn Tailscale Troubleshooting Guide
+  </Accordion>
+  <Accordion title="Common Failure Modes">
+    <AccordionGroup>
+      <Accordion title="A) Client never connects">
+        - It is waiting for interactive auth
+        - Debug logs disabled
+        - You never opened the login URL
+
+        Fix:
+
+        - Enable debug
+        - Or use TS_AUTHKEY + TS_FORCE_LOGIN=1
+      </Accordion>
+      <Accordion title="B) Client authenticated but server can’t see it">
+        - Tag missing
+        - Policy path does not exist
+        - Posture blocking it
+        - Peer is being suppressed
+
+        Fix:
+
+        - Check admin console
+        - Check tags
+        - Check grants
+        - Check posture rules
+      </Accordion>
+      <Accordion title="C) I reinstalled and now it wants login again">
+        - State directory was deleted
+        - New identity is being created
+        - This is expected
+      </Accordion>
+    </AccordionGroup>
+  </Accordion>
+  <Accordion title="Forcing a Re-Registration">
+    If you want to force krknc to register as a new node:
+
+    ```bash
+    export TS_FORCE_LOGIN=1
+    export TS_AUTHKEY=tskey-...
+    ```
+
+    Or delete the client’s tsnet state directory.
+  </Accordion>
+  <Accordion title="Debug Checklist">
+    On the client machine:
+
+    - Is debug logging enabled?
+    - Do you see a login URL?
+    - Does the node appear in admin?
+    - Does it have the correct tag?
+    - Does policy allow it to talk to anything?
+
+    On another machine:
+
+    ```bash
+    tailscale status
+    ```
+
+    Does the client appear at all?
+
+    If not:
+
+    > The control plane has suppressed it due to policy.
+  </Accordion>
+</AccordionGroup>
+
+## Key Takeaways
+
+- krknc uses its own embedded Tailscale node
+- It must authenticate once
+- Auth can be interactive or via TS_AUTHKEY
+- TS_FORCE_LOGIN=1 forces fresh registration
+- After first auth, env vars are no longer needed
+- If a node is invisible, it is being hidden by policy, not broken networking
+
+---
+
+---
