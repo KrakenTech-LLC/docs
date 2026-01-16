@@ -38,7 +38,7 @@ The Krkn Client can be used to interface with the Krkn Server
 
 ## First Time Setup
 
-To utilize the Krkn Client (krknc) you will need to store the token received in your email in the environment variables. 
+To utilize the Krkn Client (krknc) you will need to store the token received in your email in the environment variables.
 
 <AccordionGroup>
   <Accordion title="Windows" icon="windows">
@@ -74,6 +74,10 @@ To utilize the Krkn Client (krknc) you will need to store the token received in 
     ```
   </Accordion>
 </AccordionGroup>
+
+### Add Configuration Settings
+
+Set the Server, Tailscale (optional), hostname (tailscale hostname if on tailscale otherwise IP or resolvable hostname by Server) and Webhook Type/Port.
 
 ## Configuration
 
@@ -151,6 +155,7 @@ Logs can be queried to facilitate troubleshooting and debugging both remotely on
     | -T --no-truncate | Do not truncate log details                                               | bool   |
     | -V --severity    | Comma-delimited log severity to show (debug, info, warning, error, fatal) | string |
     | -S --start       | Start date for logs (e.g., '8 minutes ago', 'Jan 01, 2026')               | string |
+    | -Q               | Query using a keyword value                                               | string |
   </Accordion>
   <Accordion title="Local">
     <Info>
@@ -163,8 +168,11 @@ Logs can be queried to facilitate troubleshooting and debugging both remotely on
     | -T --no-truncate | Do not truncate log details                                               | bool   |
     | -V --severity    | Comma-delimited log severity to show (debug, info, warning, error, fatal) | string |
     | -S --start       | Start date for logs (e.g., '8 minutes ago', 'Jan 01, 2026')               | string |
+    | -Q               | Query using a keyword value                                               | string |
   </Accordion>
 </AccordionGroup>
+
+![Image](/images/image-3.png)
 
 ## Users
 
