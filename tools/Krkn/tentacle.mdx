@@ -58,77 +58,81 @@ Tentacle supports all standard Hashcat Attack Modes:
 
 # Installation
 
-<Steps>
-  <Step title="Run the host preparation script to install NVIDIA drivers, Docker, and the NVIDIA Container Toolkit:" icon="1">
-    `./prep_host.sh`
+Tentacle is distributed as a prebuilt, GPU-enabled container. You do not need to compile anything locally.
 
+## Requirements
+
+- Your [hub.krkn.tech](http://hub.krkn.tech) username
+- Your [hub.krkn.tech](http://hub.krkn.tech) password
+- Your Krkns server address
+- (optional) Your Worker ID (name of this Tentacle worker. Defaults to hostname)
+
+## Quick Install
+
+<Steps>
+  <Step title="Run the installation script:" icon="1">
     This script will:
 
-    - Update the system packages
-    - Install NVIDIA driver 575 (if not present)
+    - Verifies NVIDIA driver
     - Install Docker and enable the service
     - Install NVIDIA Container Toolkit
     - Configure Docker to use the NVIDIA runtime
-    - Prompt for a system restart
+    - Detects your GPU CUDA Capabilities
+    - Pulls the correct Tentacle image from the Krkn Hub
+    - Prompts for required configuration
+    - Starts the worker as a persistent service named `tentacle`
+
+    Default Configuration:
+
+    ```bash
+    --restart unless-stopped
+    --gpus all
+    --network host
+    ```
 
     <Info>
-      Important: Reboot the system after running prep_host.sh
+      Important: Supported Platforms:
+
+      - **OS**: Debian 12/13, Ubuntu 22.04+, or equivalent
+      - **GPU**: NVIDIA GPU with CUDA support
+      - **Driver**: NVIDIA driver installed and working (`nvidia smi` must work)
     </Info>
-    After reboot, verify GPU passthrough works:
+    On the worker host, run:
 
-    ```
-    docker run --rm --runtime=nvidia --gpus all nvidia/cuda:13.0.0-base-ubuntu24.04 nvidia-smi  
-    ```
-
-    You should see a list of the GPU(s) in the output
-  </Step>
-  <Step title="Configure Environment" icon="2">
-    Create a `.env` by copying the `.env.environment` file
-
-    ```
-    cp .env.environment .env
+    ```bash
+    curl -fsSL https://hub.krkn.tech/install.sh | sudo bash
     ```
 
-    Edit the .env with your configuration:
+    Or, if you prefer:
 
-    ```
-    # Orchestra Conductor address (Kraken server)  
-    CONDUCTOR_ADDR=krkn-server-hostname-or-ip:65535  
-      
-    # Unique worker ID (defaults to hostname if not set)  
-    WORKER_ID=worker-name 
-      
-    # Number of concurrent jobs this worker can handle  
-    CAPACITY=1  
-      
-    # Directory for temporary files  
-    TEMP_DIR=/tmp/tentacle  
-      
-    # Path to hashcat installation (inside container)  
-    HASHCAT_PATH=/opt/hashcat  
-      
-    # Path to hashcat shared resources  
-    SHARED_PATH=/opt/hashcat  
-      
-    # Optional: GPU model label for conductor scheduling  
-    GPU_MODEL=RTX-4090  
-      
-    # Optional: Region label for conductor scheduling  
-    REGION=us-east  
+    ```bash
+    wget https://hub.krkn.tech/install.sh
+    chmod +x install.sh
+    sudo ./install.sh
     ```
   </Step>
-  <Step title="Build the Docker Image" icon="3">
-    Set your GitHub token (required):
+  <Step title="Set Environment Variables" icon="2">
+    During the installation you will be prompted for:
 
-    ```
-    export KRKN_KEY=your_github_personal_access_token 
-    ```
+    - Registry credentials (required)
+      - Used to authenticate to `hub.krkn.tech` and pull the Tentacle image.
+    - Orchestrator Address (required)
+      - `192.168.56.2:65535` # Default port is 65535
+    - Worker ID (optional)
+      - "My-Worker"
+  </Step>
+  <Step title="Re-Running the Installer" icon="3">
+    The installer is idempotaent and can be safely re-run to:
 
-    Build the Tentacle Docker Image:
+    - Change the orcehstrator address
+    - Change the worker ID
+    - Upgrade the worker
+    - Recover from a broken install
 
-    ```
-    cd temp/Tentacle/docker && chmod +x ./build.sh && ./build.sh
-    ```
+    It will:
+
+    - Stop and remove the existing `tentacle` container
+    - Replace it with the new one
   </Step>
 </Steps>
 
