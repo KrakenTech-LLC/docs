@@ -85,29 +85,34 @@ Krkn keeps the workflow centralized, encrypted, and contained - by design.
 
 Upon launching the Krkn Server if a database does not yet exist, the user will be prompted to begin the first time setup process.
 
-![Krkn 86](/images/Krkn-_86.png)
+![Image](/images/image-6.png)
 
 ### Specifying a Sending Email
 
-In order to begin a new Krkn server, a sending email must be provided. Currently only outlook email addresses are supported.
+In order to begin a new Krkn server, a sending email must be provided. 
 
-This sending email will be used to add new users to the Krkn Server.
+Currently only the following SMTP Senders are implemented:
 
-![Sender Configuration](/sender_configuration.png)
+- Outlook
+  - The app password can be generated at the [Microsoft Security Info](https://mysignins.microsoft.com/security-info) page.
+- Google
+  - The app password can be generated at the \<\> page.
+- Mailgun
+- Sengrid
+- Standard SMTP
+  - TLS
+  - StartTLS
 
-Next, an app password must be provided for the sending email. This can be generated at the [Microsoft Security Info](https://mysignins.microsoft.com/security-info) page.
+This sending email will be used to:
 
-![Krkn 85](/images/Krkn-_85.png)
+- Add new users to the Krkn Server.
+- Reset user tokens
 
 ### Admin User
 
 After selecting a sending email, the admin user must be created. To do so, we first supply a username followed by an email address.
 
-![Admin Account Username](/admin_account_username.png)
-
 Once the admin user information has been populated, a token email will be sent to the admin user from the sending email.
-
-![Email Sent](/email_sent.png)
 
 ![Validation Required](/validation_required.png)
 
@@ -115,6 +120,6 @@ Once the admin user information has been populated, a token email will be sent t
 
 Once the token is received, the user can then provide it to the Krkn Server to verify receipt and initialize the server.
 
-![Confirm Token](/confirm_token.png)
+![Image](/images/image-7.png)
 
 ![Krkn 80](/images/Krkn-_80.png)
