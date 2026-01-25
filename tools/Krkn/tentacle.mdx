@@ -27,6 +27,7 @@ Tentacle workers are designed to run on GPU-enabled Linux systems and process pa
 2. **Executor**: Handles hashcat execution, file management, and result streaming
 3. **File Manager**: Downloads and caches wordlists, rules, masks, and hashlists
 4. **Orchestra Integration**: Manages registration, heartbeats, work pulling, and lease management
+5. **Poll Based**: The Tentacle worker and its container do not expose ports, because they are not listening. Instead, the worker polls for work from the krkns, removing the attack surface on these devices.
 
 # Attack Modes Supported
 
